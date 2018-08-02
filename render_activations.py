@@ -35,8 +35,6 @@ os.system(f'mkdir -p {save_image_dest}')
 
 
 def render_set(n, channel):
-
-
     
     print ("Starting", channel, n)
     obj = objectives.channel(channel, n)
