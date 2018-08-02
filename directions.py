@@ -32,8 +32,6 @@ optimizer = tf.train.AdamOptimizer(0.005)
 transforms=[]
 
 save_image_dest = "results/images_direction"
-save_model_dest = "results/models_direction"
-os.system(f'mkdir -p {save_model_dest}')
 os.system(f'mkdir -p {save_image_dest}')
 
 ###########################################################################
