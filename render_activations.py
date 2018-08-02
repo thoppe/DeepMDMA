@@ -3,7 +3,6 @@ import os
 from tqdm import tqdm
 #from IPython import embed
 
-from CPPN_activations import *
 from scipy.misc import imsave
 
 import tensorflow as tf
@@ -14,6 +13,7 @@ from lucid.misc.io import show, save, load
 from lucid.optvis import objectives
 from lucid.optvis import render
 from lucid.misc.tfutil import create_session
+from lucid.optvis.param import cppn
 
 print ("Loading model")
 model = vision_models.InceptionV1()
@@ -49,7 +49,7 @@ def render_set(n, channel):
 
     T = render.make_vis_T(
         model, obj,
-        param_f=lambda: image_cppn(t_size),
+        param_f=lambda: cppn(t_size),
         transforms=[],
         optimizer=optimizer, 
     )
@@ -67,11 +67,13 @@ def render_set(n, channel):
   
     # Save final image
     images = T("input").eval({t_size: 600})
-
     img = images[0]
+    sess.close()
     
     f_image = os.path.join(save_image_dest, channel + f"_{n}.png")
     imsave(f_image, img)
+
+    
 
 '''
 channel = "mixed4a_3x3_pre_relu"

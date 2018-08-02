@@ -14,6 +14,8 @@ from lucid.misc.io import show, save, load
 from lucid.optvis import objectives
 from lucid.optvis import render
 from lucid.misc.tfutil import create_session
+from lucid.optvis.param import cppn
+
 
 print ("Loading model")
 model = vision_models.InceptionV1()
@@ -46,11 +48,12 @@ Y = np.cos(period*T+phase)
 
 sess = create_session()
 t_size = tf.placeholder_with_default(size_n, [])
-param_f = image_cppn(t_size)
+#param_f = image_cppn(t_size, batch=1)
+param_f = cppn(t_size, batch=1)
 
 def render_set(n, channel, vec, train_n):
 
-    obj = objectives.direction_neuron(channel, vec)
+    obj = objectives.direction_neuron(channel, vec) #- 1e2*objectives.diversity("mixed5a")
 
     T = render.make_vis_T(
         model, obj,
