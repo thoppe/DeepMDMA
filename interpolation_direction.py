@@ -3,7 +3,7 @@ from scipy.misc import imsave
 from lucid.misc.tfutil import create_session
 import numpy as np
 import tensorflow as tf
-import os, glob
+import os, glob, collections
 from lucid.optvis.param import cppn
 from tqdm import tqdm
 from IPython import embed
@@ -21,17 +21,102 @@ sess = create_session()
 def create_network():
   t_size = tf.placeholder_with_default(figure_size, [])
   nets = []
-  with tf.variable_scope(f"CPPN"):
-    for k in range(batch_size):
-      with tf.variable_scope(f"CPPN_layer_{k}"):
-        nets.append(cppn(t_size))
+  for k in range(batch_size):
+    with tf.variable_scope(f"CPPN_layer_{k}"):
+      nets.append(cppn(t_size))
                 
-      return tf.concat(nets, axis=0)
+  return tf.concat(nets, axis=0)
 
 T = create_network()
-
 saver = tf.train.Saver()
 saver.restore(sess, f_model)
+
+
+class weighted_layers:
+  def __init__(self):
+
+    # Map the names of the layers to the TF variables
+    layer_ref = {v.name:v for v in tf.trainable_variables()}
+
+    # Extract the weights for blending later
+    #W = dict(zip(layer_ref, sess.run( list(layer_ref.keys()))))
+    self.ORG = {key : sess.run(layer_ref[key]) for key in layer_ref}
+
+    # This is where we will write everything
+    self.X = self.ORG.copy()
+    self.clear()
+
+  def clear(self):
+    for key,val in self.X.items():
+      self.X[key] = np.zeros_like(val)
+
+  def add_fraction(self, i, j, fraction):
+
+    for key in self.X:
+      
+      if f"CPPN_layer_{i}" not in key:
+        continue
+
+      key2 = key.replace(f"CPPN_layer_{i}", f"CPPN_layer_{j}")
+      
+      self.X[key] += fraction*self.ORG[key2]
+
+  def render(self):
+    for img in sess.run(T, feed_dict=self.X):
+      #print (img)
+      plt.imshow(img)
+      break
+    #plt.show()
+      
+    
+
+W = weighted_layers()
+W.add_fraction(0,1,1)
+W.render()
+embed()
+
+exit()
+    
+
+
+'''
+for k in range(batch_size):
+  for key in layer_ref:
+    if f"CPPN_layer_{k}" in key:
+      W[k][key] = 
+'''
+embed()
+for img in sess.run(T, feed_dict=W[1]):
+   print (img)
+   plt.imshow(img)
+   plt.show()
+   exit()
+
+#print (X)
+embed()
+
+exit()
+
+
+
+
+'''
+with tf.variable_scope("FOO"):
+  T = create_network()
+
+var_list = {
+  v.name.lstrip("FOO/") : v
+  for v in tf.get_collection(tf.GraphKeys.VARIABLES, scope="FOO/")
+}
+print(var_list)
+embed()
+saver = tf.train.Saver(var_list=var_list)
+saver.restore(sess, f_model)
+'''
+exit()
+
+embed()
+exit()
 
 '''
 for img in sess.run(T):
@@ -41,7 +126,11 @@ for img in sess.run(T):
    plt.show()
    exit()
 '''
+
 embed()
+
+# Figure out how to load two copies of the model
+
 exit()
 
 def render_params(params, size=size_n):

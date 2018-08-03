@@ -42,12 +42,11 @@ t_size = tf.placeholder_with_default(size_n, [])
 
 def create_network():
     nets = []
-    with tf.variable_scope(f"CPPN"):
-        for k in range(batch_size):
-            with tf.variable_scope(f"CPPN_layer_{k}"):
-                nets.append(cppn(t_size))
+    for k in range(batch_size):
+        with tf.variable_scope(f"CPPN_layer_{k}"):
+            nets.append(cppn(t_size))
                 
-        return tf.concat(nets, axis=0)
+    return tf.concat(nets, axis=0)
 
 def render_set(n, channel, train_n):
 
@@ -55,7 +54,7 @@ def render_set(n, channel, train_n):
     param_f = create_network
     obj = sum(objectives.channel(channel, n, batch=i) for i in range(batch_size))
 
-    obj += 0.01*objectives.alignment(channel, decay_ratio=2)
+    obj += 0.02*objectives.alignment(channel, decay_ratio=2)
 
     # See more here
     # https://colab.research.google.com/github/tensorflow/lucid/blob/master/notebooks/differentiable-parameterizations/aligned_interpolation.ipynb#scrollTo=jOCYDhRrnPjp
