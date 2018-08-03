@@ -33,13 +33,14 @@ T = create_network()
 saver = tf.train.Saver()
 saver.restore(sess, f_model)
 
+'''
 for img in sess.run(T):
    print (img)
 
    plt.imshow(img)
    plt.show()
    exit()
-
+'''
 embed()
 exit()
 
