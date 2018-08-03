@@ -14,6 +14,7 @@ from lucid.misc.tfutil import create_session
 from lucid.optvis.param import cppn
 import lucid.optvis.param as param
 
+from lucid.optvis.param import spatial, color, lowres
 
 print ("Loading model")
 model = vision_models.InceptionV1()
@@ -21,10 +22,16 @@ model.load_graphdef()
 
 batch_size = 6
 
-# TEST: size_n lower and lower training steps still works w/lower quality
+# TESTED: size_n lower and lower training steps still works w/lower quality
+#size_n = 200
+#starting_training_steps = 2**10
 
 size_n = 100
 starting_training_steps = 2**9
+
+#from skimage.transform import resize
+#target_img = load("results/images/mixed4a_3x3_pre_relu_25.png")
+#target_img = resize(target_img, (size_n, size_n), anti_aliasing=True)
 
 optimizer  = tf.train.AdamOptimizer(0.005)
 transforms = []
@@ -40,21 +47,34 @@ sess = create_session()
 
 t_size = tf.placeholder_with_default(size_n, [])
 
-def create_network():
+def create_network(BS):
     nets = []
-    for k in range(batch_size):
+    
+    for k in range(BS):
         with tf.variable_scope(f"CPPN_layer_{k}"):
             nets.append(cppn(t_size))
-                
-    return tf.concat(nets, axis=0)
+
+    net = tf.concat(nets, axis=0)
+    return net
 
 def render_set(n, channel, train_n):
 
     # Creates independent images
-    param_f = create_network
-    obj = sum(objectives.channel(channel, n, batch=i) for i in range(batch_size))
+    param_f = lambda : create_network(batch_size)
+    
+    obj = sum(
+        objectives.channel(channel, n, batch=i)
+        for i in range(batch_size)
+    )
 
-    obj += 0.01*objectives.alignment(channel, decay_ratio=3)
+    # This gives some visual similarity to the models
+    #obj += 10*objectives.input_diff(target_img)
+
+    # This does as well but not as nice
+    #obj += 0.01*objectives.alignment(channel, decay_ratio=3)
+
+    # This gives some visual similarity to the models
+    #obj += 10*objectives.input_diff(target_img)    
 
     # See more here
     # https://colab.research.google.com/github/tensorflow/lucid/blob/master/notebooks/differentiable-parameterizations/aligned_interpolation.ipynb#scrollTo=jOCYDhRrnPjp
@@ -89,4 +109,5 @@ images = render_set(cn, channel, starting_training_steps)
 
 for k, img in enumerate(images):
     f_img = os.path.join(save_image_dest, channel + f"_{cn}_{k:06d}.png")
-    imsave(f_img, img)    
+    print("Saving", f_img)
+    imsave(f_img, img)
