@@ -54,7 +54,7 @@ def render_set(n, channel, train_n):
     param_f = create_network
     obj = sum(objectives.channel(channel, n, batch=i) for i in range(batch_size))
 
-    obj += 0.02*objectives.alignment(channel, decay_ratio=2)
+    obj += 0.01*objectives.alignment(channel, decay_ratio=3)
 
     # See more here
     # https://colab.research.google.com/github/tensorflow/lucid/blob/master/notebooks/differentiable-parameterizations/aligned_interpolation.ipynb#scrollTo=jOCYDhRrnPjp
@@ -76,13 +76,6 @@ def render_set(n, channel, train_n):
     # Save trained variables
     f_model = os.path.join(save_model_dest, channel + f"_{n}_batches_{batch_size}.ckpt")
     save_path = saver.save(sess, f_model)
-    
-    #train_vars = sess.graph.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
-    #print(train_vars)
-    #params = np.array(sess.run(train_vars), object) 
-    #f_model = os.path.join(save_model_dest, channel + f"_{n}_batches_{batch_size}.npy")
-    #save(params, f_model)
-  
       
     # Return image
     images = T("input").eval({t_size: 600})
@@ -97,15 +90,3 @@ images = render_set(cn, channel, starting_training_steps)
 for k, img in enumerate(images):
     f_img = os.path.join(save_image_dest, channel + f"_{cn}_{k:06d}.png")
     imsave(f_img, img)    
-
-
-
-
-#f_image = 'demo.png'
-#imsave(f_image, img)
-
-#for k,y in tqdm(enumerate(Y)):
-#    f_img = os.path.join(save_image_dest, channel + f"_{cn}_{k:06d}.png")
-#    img = render_set(cn, channel, y, intermediate_training_steps)
-#    imsave(f_img, img)
-

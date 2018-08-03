@@ -6,8 +6,10 @@ import tensorflow as tf
 import os, glob, collections
 from lucid.optvis.param import cppn
 from tqdm import tqdm
-from IPython import embed
 import pylab as plt
+import joblib
+
+#from IPython import embed
 
 figure_size = 400
 batch_size = 6
@@ -52,136 +54,65 @@ class weighted_layers:
 
   def add_fraction(self, i, j, fraction):
 
-    for key in self.X:
-      
+    for key in self.X:      
       if f"CPPN_layer_{i}" not in key:
         continue
 
       key2 = key.replace(f"CPPN_layer_{i}", f"CPPN_layer_{j}")
-      
       self.X[key] += fraction*self.ORG[key2]
 
+  def multiply(self, fraction):
+    for key in self.X:
+      self.X[key] *= fraction
+
   def render(self):
-    for img in sess.run(T, feed_dict=self.X):
-      #print (img)
-      plt.imshow(img)
-      break
-    #plt.show()
-      
-    
+    images = sess.run(T, feed_dict=self.X)
+    return images
+
+  def show(self, i):
+    plt.imshow(self.render()[i])
 
 W = weighted_layers()
 W.add_fraction(0,1,1)
-W.render()
-embed()
+W.show(0)
 
-exit()
-    
+#embed()
+total_frames = 30
 
+def save_image(img, frame_idx):
+  f_image = os.path.join(save_dest, f"{frame_idx:08d}.png")
+  imsave(f_image, img)
 
-'''
-for k in range(batch_size):
-  for key in layer_ref:
-    if f"CPPN_layer_{k}" in key:
-      W[k][key] = 
-'''
-embed()
-for img in sess.run(T, feed_dict=W[1]):
-   print (img)
-   plt.imshow(img)
-   plt.show()
-   exit()
-
-#print (X)
-embed()
-
-exit()
-
-
-
-
-'''
-with tf.variable_scope("FOO"):
-  T = create_network()
-
-var_list = {
-  v.name.lstrip("FOO/") : v
-  for v in tf.get_collection(tf.GraphKeys.VARIABLES, scope="FOO/")
-}
-print(var_list)
-embed()
-saver = tf.train.Saver(var_list=var_list)
-saver.restore(sess, f_model)
-'''
-exit()
-
-embed()
-exit()
-
-'''
-for img in sess.run(T):
-   print (img)
-
-   plt.imshow(img)
-   plt.show()
-   exit()
-'''
-
-embed()
-
-# Figure out how to load two copies of the model
-
-exit()
-
-def render_params(params, size=size_n):
-  feed_dict = dict(zip(train_vars, params))
-  feed_dict[t_size] = size
-  return sess.run(T, feed_dict)
-
-
-'''
-bps = 125
-fps = 30
-pi = np.pi
-
-period = 2*pi
-duration = 60.0/bps
-n_frames = (fps*duration)
-
-T = np.linspace(0, duration, n_frames).reshape(-1,1)
-period = [period, period]
-phase  = [0, np.pi]
-
-Y = np.cos(period*T+phase)
-Y = np.sin(Y*(pi/2))
-#Y = np.sin(Y*(pi/2))
-Y = (Y+1)/2
-frame_n = 0
-'''
-
-total_frames = 10
+dfunc = joblib.delayed(save_image)
+MP = joblib.Parallel(-1)
 
 
 for frame_n in range(total_frames):
   print("Frameset",frame_n)
-
-  links = [[j, j+1] for j in range(batch_size)]
-  links[-1][-1] = 0
-  print(links)
-
-  t = frame_n / float(total_frames)
-
   
-  for y0, y1 in Y:
-    params = y0*m0 + y1*m1
+  t = frame_n / float(total_frames)
+  t = (1.0-np.cos(np.pi*t))/2.0
 
-    params *= 1.0 + y0*(1.0-y0)
+  W.clear()
+
+  for i in range(batch_size):
+    j = (i+1)%batch_size
+    W.add_fraction(i, i, (1-t))
+    W.add_fraction(i, j, t)
+
+  # Exaggeraton step (comment out for smoothness)
+  W.multiply(1 + t*(1-t))
+
+  images = W.render()
+  MP(dfunc(img, frame_n + k*(total_frames)) for k, img in enumerate(images))
+
+  '''
+  for k, img in enumerate(images):
+    frame_idx = frame_n + k*(total_frames)
+    print (frame_n, k, frame_idx)
     
-    img = render_params(params, size=600)
+    save_image(img, frame_idx)
 
-    f_image = os.path.join(save_dest, f"{frame_n:08d}.png")
-    imsave(f_image, img)
-
-    frame_n += 1
-
-
+    #f_image = os.path.join(save_dest, f"{frame_idx:08d}.png")
+    #imsave(f_image, img)
+  '''

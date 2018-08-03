@@ -5,7 +5,7 @@ from lucid.misc.tfutil import create_session
 import numpy as np
 import tensorflow as tf
 import os, glob
-from CPPN_activations import image_cppn
+from lucid.optvis.param import cppn
 from tqdm import tqdm
 size_n = 200
 
@@ -14,7 +14,7 @@ os.system(f'mkdir -p {save_dest}')
 
 sess = create_session()
 t_size = tf.placeholder_with_default(size_n, [])
-t_image = image_cppn(t_size)
+t_image = cppn(t_size)
 train_vars = sess.graph.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
 
 def render_params(params, size=224):
@@ -51,6 +51,9 @@ f_models = [
 ]
 print("Loading models")
 MODELS = list(map(load, tqdm(f_models)))
+
+print (MODELS[0])
+exit()
 
 fps = 30
 duration = 15
