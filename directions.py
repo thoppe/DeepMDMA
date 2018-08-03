@@ -1,13 +1,11 @@
 import numpy as np
 import os
 from tqdm import tqdm
-#from IPython import embed
+from IPython import embed
 
 from scipy.misc import imsave
 
 import tensorflow as tf
-from tensorflow.contrib import slim
-
 from lucid.modelzoo import vision_models
 from lucid.misc.io import show, save, load
 from lucid.optvis import objectives
@@ -21,7 +19,7 @@ print ("Loading model")
 model = vision_models.InceptionV1()
 model.load_graphdef()
 
-batch_size = 3
+batch_size = 6
 
 # TEST: size_n lower and lower training steps still works w/lower quality
 
@@ -34,38 +32,33 @@ transforms = []
 save_image_dest = "results/images_direction"
 os.system(f'mkdir -p {save_image_dest}')
 
+save_model_dest = "results/models_direction"
+os.system(f'mkdir -p {save_model_dest}')
+
 ###########################################################################
 sess = create_session()
+
 t_size = tf.placeholder_with_default(size_n, [])
-param_f = lambda: tf.concat([cppn(t_size) for _ in range(batch_size)], axis=0)
+
+def create_network():
+    nets = []
+    with tf.variable_scope(f"CPPN"):
+        for k in range(batch_size):
+            with tf.variable_scope(f"CPPN_layer_{k}"):
+                nets.append(cppn(t_size))
+                
+        return tf.concat(nets, axis=0)
 
 def render_set(n, channel, train_n):
 
-    neuron1 = (channel, n)
-    neuron2 = (channel, n)
+    # Creates independent images
+    param_f = create_network
+    obj = sum(objectives.channel(channel, n, batch=i) for i in range(batch_size))
 
-    # Sum objective on each channel oversaturates
-    obj = objectives.channel(*neuron1, batch=0) + objectives.channel(*neuron2, batch=1)
-
-    # This doesn't oversaturate, but images are the same
-    #obj = objectives.channel(*neuron1, batch=0)
-
-    # This does absolutely nothing to mix images (either plus or minus)
-    #obj -= 1e2*objectives.diversity("mixed5a")
-
-    '''
-    interpolation_objective = objectives.channel_interpolate(*neuron1, *neuron2)
-    alignment_objective = (
-        objectives.alignment('mixed4a', decay_ratio=5) +
-        objectives.alignment('mixed4b', decay_ratio=5)
-    )
-    obj = interpolation_objective + 1e-1 * alignment_objective
-    '''
+    obj += 0.01*objectives.alignment(channel, decay_ratio=2)
 
     # See more here
     # https://colab.research.google.com/github/tensorflow/lucid/blob/master/notebooks/differentiable-parameterizations/aligned_interpolation.ipynb#scrollTo=jOCYDhRrnPjp
-    #interpolation_objective = objectives.channel_interpolate(*neuron1, *neuron2)
-    #alignment_objective = objectives.alignment('mixed3b', decay_ratio=5) + objectives.alignment('mixed4a', decay_ratio=5)
 
     T = render.make_vis_T(
         model, obj,
@@ -73,10 +66,24 @@ def render_set(n, channel, train_n):
         transforms=[],
         optimizer=optimizer, 
     )
+    
+    saver = tf.train.Saver()
     tf.global_variables_initializer().run()
     
     for i in tqdm(range(train_n)):
       _, loss = sess.run([T("vis_op"), T("loss"), ])
+
+      
+    # Save trained variables
+    f_model = os.path.join(save_model_dest, channel + f"_{n}_batches_{batch_size}.ckpt")
+    save_path = saver.save(sess, f_model)
+    
+    #train_vars = sess.graph.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
+    #print(train_vars)
+    #params = np.array(sess.run(train_vars), object) 
+    #f_model = os.path.join(save_model_dest, channel + f"_{n}_batches_{batch_size}.npy")
+    #save(params, f_model)
+  
       
     # Return image
     images = T("input").eval({t_size: 600})
