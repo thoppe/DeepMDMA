@@ -46,7 +46,7 @@ def create_locked_network(
     with tf.variable_scope(f"CPPN_shared"):
         shared_net = reduced_cppn(network_size)
 
-        for i in range(num_layers - num_shared_layers):
+        for i in range(num_shared_layers):
             shared_net = add_layer(shared_net)
 
     for k in range(batch_size):
@@ -54,7 +54,7 @@ def create_locked_network(
 
             rgb = shared_net
             
-            for i in range(num_shared_layers):
+            for i in range(num_layers-num_shared_layers):
                 rgb = add_layer(rgb)
 
             # Final Layer

@@ -23,8 +23,9 @@ model = vision_models.InceptionV1()
 model.load_graphdef()
 
 batch_size = 6
+
 num_layers = 8
-num_shared_layers = 2
+num_shared_layers = 3
 
 # Idea, after first training, try to reload the weights and only copy over the top layers...
 

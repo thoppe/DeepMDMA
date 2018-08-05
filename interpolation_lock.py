@@ -16,7 +16,7 @@ batch_size = 6
 channel, cn = 'mixed4a_3x3_pre_relu', 25
 
 num_layers = 8
-num_shared_layers = 2
+num_shared_layers = 3
 
 
 load_model_dest = 'results/models_lock/'
@@ -113,18 +113,7 @@ for frame_n in range(total_frames):
     W.add_fraction(i, j, t)
 
   # Exaggeraton step (comment out for smoothness)
-  W.multiply(1 + t*(1-t))
+  #W.multiply(1 + t*(1-t))
 
   images = W.render()
   MP(dfunc(img, frame_n + k*(total_frames)) for k, img in enumerate(images))
-
-  '''
-  for k, img in enumerate(images):
-    frame_idx = frame_n + k*(total_frames)
-    print (frame_n, k, frame_idx)
-    
-    save_image(img, frame_idx)
-
-    #f_image = os.path.join(save_dest, f"{frame_idx:08d}.png")
-    #imsave(f_image, img)
-  '''
