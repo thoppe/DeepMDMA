@@ -16,7 +16,7 @@ batch_size = 6
 channel, cn = 'mixed4a_3x3_pre_relu', 25
 
 num_layers = 8
-num_shared_layers = 3
+num_shared_layers = 2
 
 
 load_model_dest = 'results/models_lock/'
@@ -52,17 +52,21 @@ class weighted_layers:
 
     # This is where we will write everything
     self.X = self.ORG.copy()
+
     self.clear()
 
   def clear(self):
     for key,val in self.X.items():
       self.X[key] = np.zeros_like(val)
+      #self.X[key] += 1 ## WGM
 
     # Force 100% of the shared layers
     for key in self.X:      
       if f"CPPN_shared" not in key:
         continue      
       self.X[key] += self.ORG[key]
+
+    self.weights = np.zeros(batch_size)
 
   def add_fraction(self, i, j, fraction):
 
@@ -71,13 +75,19 @@ class weighted_layers:
         continue
 
       key2 = key.replace(f"CPPN_layer_{i}", f"CPPN_layer_{j}")
-      self.X[key] += fraction*self.ORG[key2]
+
+      self.X[key] += self.ORG[key2]*fraction
+      #self.X[key] *= self.ORG[key2]**fraction ## WGM
+      
+    self.weights[i] += fraction
 
   def multiply(self, fraction):
     for key in self.X:
+      if f"CPPN_shared" in key:
+        continue      
       self.X[key] *= fraction
 
-  def render(self):
+  def render(self):  
     images = sess.run(T, feed_dict=self.X)
     return images
 
@@ -85,8 +95,6 @@ class weighted_layers:
     plt.imshow(self.render()[i])
 
 W = weighted_layers()
-W.add_fraction(0,1,1)
-W.show(0)
 
 #embed()
 total_frames = 30
@@ -113,7 +121,7 @@ for frame_n in range(total_frames):
     W.add_fraction(i, j, t)
 
   # Exaggeraton step (comment out for smoothness)
-  #W.multiply(1 + t*(1-t))
+  W.multiply(1 + t*(1-t))
 
   images = W.render()
   MP(dfunc(img, frame_n + k*(total_frames)) for k, img in enumerate(images))
