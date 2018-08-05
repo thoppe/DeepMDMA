@@ -4,32 +4,38 @@ from lucid.misc.tfutil import create_session
 import numpy as np
 import tensorflow as tf
 import os, glob, collections
-from lucid.optvis.param import cppn
 from tqdm import tqdm
 import pylab as plt
 import joblib
+from src.locked_cppn import create_locked_network
 
 #from IPython import embed
 
 figure_size = 400
 batch_size = 6
-f_model = "results/models_direction/mixed4a_3x3_pre_relu_25_batches_6.ckpt"
+channel, cn = 'mixed4a_3x3_pre_relu', 25
 
-save_dest = "results/direction_same_face"
+num_layers = 8
+num_shared_layers = 2
+
+
+load_model_dest = 'results/models_lock/'
+f_model = os.path.join(
+  load_model_dest, 
+  f"{channel}_{cn}_batches_{batch_size}.ckpt")
+
+
+save_dest = "results/smooth_lock"
 os.system(f'mkdir -p {save_dest}')
 
 sess = create_session()
 
-def create_network():
-  t_size = tf.placeholder_with_default(figure_size, [])
-  nets = []
-  for k in range(batch_size):
-    with tf.variable_scope(f"CPPN_layer_{k}"):
-      nets.append(cppn(t_size,normalize=True))
-                
-  return tf.concat(nets, axis=0)
+T = create_locked_network(
+  batch_size, figure_size,
+  num_layers=num_layers,
+  num_shared_layers=num_shared_layers,
+)
 
-T = create_network()
 saver = tf.train.Saver()
 saver.restore(sess, f_model)
 
@@ -51,6 +57,12 @@ class weighted_layers:
   def clear(self):
     for key,val in self.X.items():
       self.X[key] = np.zeros_like(val)
+
+    # Force 100% of the shared layers
+    for key in self.X:      
+      if f"CPPN_shared" not in key:
+        continue      
+      self.X[key] += self.ORG[key]
 
   def add_fraction(self, i, j, fraction):
 
