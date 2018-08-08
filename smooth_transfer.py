@@ -13,11 +13,17 @@ from lucid.optvis import render
 from lucid.misc.tfutil import create_session
 from lucid.optvis.param import cppn
 
+import random
+
+
 print ("Loading model")
 model = vision_models.InceptionV1()
 model.load_graphdef()
 
 size_n = 200
+CN = [25, 17, 1, 11, 15, 23, 40, 49, 53, 63, 71, 77, 80, 83, 85, 89, 91, 99, 100, 107, 111, 112, 121, 130, 131, 135, 141, 150, 157, 161, 172, 175, 185, 193, 198]
+
+random.shuffle(CN)
 
 n_frames = 5
 starting_training_steps = 2**10
@@ -89,7 +95,7 @@ def render_set(
 
 channel = 'mixed4a_3x3_pre_relu'
 
-CN = [25, 17, 1]
+
 
 
 C = [objectives.channel(channel, cn) for cn in CN]

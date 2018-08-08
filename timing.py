@@ -1,9 +1,46 @@
 import numpy as np
 import pylab as plt
-pi = np.pi
 
-dim = 208
-N = 30
+beats_per_frame = 4
+sigma_weight = 1/1.5
+N_frames = 5
+
+bpm = 80
+fps = 30
+
+bps = bpm/60.0
+
+seconds_per_mark =  beats_per_frame/bps
+total_seconds = seconds_per_mark*N_frames
+
+T = np.linspace(0, total_seconds, fps*total_seconds)
+
+WEIGHTS = np.zeros(shape=(N_frames, len(T)))
+
+for k in range(N_frames):
+    
+    s = seconds_per_mark
+    WEIGHTS[k] = np.exp(-(T-k*s)**2/(s*sigma_weight))
+    
+    if k==0:
+        WEIGHTS[k] += np.exp(-(T-N_frames*s)**2/(s*sigma_weight))
+
+WEIGHTS /= WEIGHTS.sum(axis=0)
+
+WEIGHTS += 0.25*np.cos((np.pi/seconds_per_mark*beats_per_frame)*T.reshape(1,-1))**2
+
+    
+for k,Y in enumerate(WEIGHTS):
+    plt.plot(T,Y,label=k)
+
+plt.legend()
+plt.show()
+exit()
+
+
+
+
+
 phase = np.random.uniform(0, 2*pi, dim)
 period = np.random.uniform(0, pi/10, dim)
 T = np.linspace(0,2*pi,N).reshape(-1,1)

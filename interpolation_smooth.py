@@ -6,17 +6,24 @@ import numpy as np
 import tensorflow as tf
 import os, glob
 from lucid.optvis.param import cppn
+from IPython import embed
 
 from tqdm import tqdm
-size_n = 200
+
+render_size = 640
+model_cutoff = 34
+extension = 'png'
+
 
 save_dest = "results/interpolation_smooth"
 os.system(f'mkdir -p {save_dest}')
 
 sess = create_session()
-t_size = tf.placeholder_with_default(size_n, [])
+t_size = tf.placeholder_with_default(200, [])
 t_image = cppn(t_size)
 train_vars = sess.graph.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
+
+# avconv -y -r 30  -i "%08d.png"  -b:v 2400k ../wiggle6.mp4
 
 def render_params(params, size=224):
   feed_dict = dict(zip(train_vars, params))
@@ -26,51 +33,57 @@ def render_params(params, size=224):
 f_models = sorted(glob.glob("results/smooth_models/*000*.npy"))
 
 
-print("Loading models")
-MODELS = list(map(load, tqdm(f_models)))
+print(f"Loading models. Found {len(f_models)} total.")
 
 
-bps = 125
+MODELS = list(map(load, tqdm(f_models[:model_cutoff])))
+
+
+########################################################
+N_frames = len(MODELS)
+beats_per_frame = 4
+sigma_weight = 1/1.5
+
+bpm = 80
 fps = 30
-pi = np.pi
 
-period = 2*pi
-duration = 60.0/bps
-n_frames = (fps*duration)
+bps = bpm/60.0
 
-T = np.linspace(0, duration, n_frames).reshape(-1,1)
-period = [period, period]
-phase  = [0, np.pi]
+seconds_per_mark =  beats_per_frame/bps
+total_seconds = seconds_per_mark*N_frames
 
-Y = np.cos(period*T+phase)
-Y = np.sin(Y*(pi/2))
+T = np.linspace(0, total_seconds, fps*total_seconds)
 
-#Y = np.sin(Y*(pi/2))
-Y = (Y+1)/2
+WEIGHTS = np.zeros(shape=(N_frames, len(T)))
 
-frame_n = 0
-
-for i in range(len(f_models)-1):
-  print ("MODEL", i)
-  m0 = MODELS[i]
-  m1 = MODELS[i+1]
-
-  Y1 = np.linspace(0, 1, n_frames)
-  Y0 = 1-Y1
-
-  for y0, y1 in Y:
-
-    params = y0*m0 + y1*m1
-
-    #params *= 1.0 + y0*(1.0-y0)
-    params *= 1.0 + (y0*(1.0-y0)) ** 2
+for k in range(N_frames):
     
-    img = render_params(params, size=600)
+    s = seconds_per_mark
+    WEIGHTS[k] = np.exp(-(T-k*s)**2/(s*sigma_weight))
+    
+    if k==0:
+        WEIGHTS[k] += np.exp(-(T-N_frames*s)**2/(s*sigma_weight))
 
-    f_image = os.path.join(save_dest, f"{frame_n:08d}.png")
-    imsave(f_image, img)
+WEIGHTS /= WEIGHTS.sum(axis=0)
 
-    frame_n += 1
-    print (f"Rendered {f_image}")
+# Exegeration
+WEIGHTS += 0.005*np.cos((np.pi/seconds_per_mark*beats_per_frame)*T.reshape(1,-1))**2
+#########################################################################
+os.system(f'rm -rf {os.path.join(save_dest,"*")}')
+
+for k, w in tqdm(enumerate(WEIGHTS.T), total=len(T)):
+  params = sum(w.reshape(-1,1)*MODELS)
+  img = render_params(params, size=render_size)
 
 
+  f_image = os.path.join(save_dest, f"{k:08d}.{extension}")
+  imsave(f_image, img)
+
+f_movie = "demo.mp4"
+
+F_IMG = os.path.join(save_dest, f"%08d.{extension}")
+cmd = f"avconv -y -r {fps} -i '{F_IMG}' -b:v 2400k {f_movie}"
+os.system(cmd)
+
+os.system(f'xdg-open {f_movie}')
+        
