@@ -10,9 +10,30 @@ from IPython import embed
 
 from tqdm import tqdm
 
+'''
 render_size = 640
 model_cutoff = 34
+
+beats_per_frame = 4
+sigma_weight = 1/1.5
+bpm = 80
+fps = 30
+exag = 0.005
 extension = 'png'
+'''
+
+render_size = 640
+model_cutoff = 80
+extension = 'png'
+
+beats_per_frame = 1
+sigma_weight = 1/3.0
+exag = 0.005
+
+bpm = 127
+fps = 30
+
+
 
 
 save_dest = "results/interpolation_smooth"
@@ -41,11 +62,7 @@ MODELS = list(map(load, tqdm(f_models[:model_cutoff])))
 
 ########################################################
 N_frames = len(MODELS)
-beats_per_frame = 4
-sigma_weight = 1/1.5
 
-bpm = 80
-fps = 30
 
 bps = bpm/60.0
 
@@ -67,7 +84,7 @@ for k in range(N_frames):
 WEIGHTS /= WEIGHTS.sum(axis=0)
 
 # Exegeration
-WEIGHTS += 0.005*np.cos((np.pi/seconds_per_mark*beats_per_frame)*T.reshape(1,-1))**2
+WEIGHTS += exag*np.cos((np.pi/seconds_per_mark*beats_per_frame)*T.reshape(1,-1))**2
 #########################################################################
 os.system(f'rm -rf {os.path.join(save_dest,"*")}')
 
