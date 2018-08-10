@@ -19,11 +19,10 @@ print ("Loading model")
 model = vision_models.InceptionV1()
 model.load_graphdef()
 
-#size_n = 200
 size_n = 200
 
 training_steps = 2**10
-
+image_size = 600
 
 optimizer = tf.train.AdamOptimizer(0.005)
 transforms=[]
@@ -64,7 +63,7 @@ def render_set(n, channel):
     save(params, f_model)
   
     # Save final image
-    images = T("input").eval({t_size: 600})
+    images = T("input").eval({t_size: image_size})
     img = images[0]
     sess.close()
     
@@ -80,7 +79,6 @@ for batch_n in range(20):
 '''
 
 CHANNELS = [
-#    "mixed4a_1x1_pre_relu",
     "mixed4a_3x3_pre_relu",
     "mixed4b_3x3_pre_relu",
     "mixed4c_3x3_pre_relu",
@@ -91,7 +89,7 @@ CHANNELS = [
 for channel in CHANNELS:
     for n in range(2**10):
 
-        f_image = os.path.join(save_image_dest, channel + f"_{n}.png")
+        f_image = os.path.join(save_image_dest, channel + f"_{n}.jpg")
         if os.path.exists(f_image):
             continue
         print("Starting", f_image)

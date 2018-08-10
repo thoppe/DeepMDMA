@@ -8,13 +8,15 @@ import librosa
 import os, glob
 from tqdm import tqdm
 
-render_duration = 200.0
-render_size = 1280
+#render_duration = 200.0
+#render_size = 1280
+#extension = 'png'
+#model_cutoff = 200
+
+render_duration = 1000.0
+render_size = 1920
 extension = 'png'
 model_cutoff = 200
-#bitrate = 2400
-#bitrate = 6400
-bitrate = 12800
 
 beats_per_frame = 4
 sigma_weight = 1/2.5
@@ -84,8 +86,16 @@ for k, w in tqdm(enumerate(WEIGHTS.T), total=len(T)):
 f_movie = "demo.mp4"
 
 F_IMG = os.path.join(save_dest, f"%08d.{extension}")
-cmd = f"avconv -y -r {fps} -i '{F_IMG}' -i {f_wav} -c:a aac -ab 112k -c:v libx264 -shortest -b:v {bitrate}k {f_movie} "
-print(cmd)
-os.system(cmd)
 
+#cmd = (f"avconv -y -r {fps} -i '{F_IMG}' -i {f_wav} -c:a aac -ab 112k -c:v libx264 -shortest -b:v {bitrate}k -strict -2 {f_movie} ")
+
+# Command good for youtube uploads
+cmd = f"avconv -y -r {fps} -i {f_wav} -i '{F_IMG}' -c:v libx264 -preset slow -profile:v high -crf 18 -coder 1 -pix_fmt yuv420p -movflags +faststart -g 30 -bf 2  -c:a aac -b:a 384k -profile:a aac_low -strict -2 -shortest {f_movie}"
+
+# Run this on images if you want to make it have a nice aspect ratio
+# find . | parallel mogrify -verbose  -crop 1920x1080 -gravity center {}
+       
+print(cmd)
+
+os.system(cmd)
 os.system(f'xdg-open {f_movie}')
