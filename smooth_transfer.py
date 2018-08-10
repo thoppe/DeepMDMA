@@ -20,12 +20,16 @@ print ("Loading model")
 model = vision_models.InceptionV1()
 model.load_graphdef()
 
+channel = 'mixed4a_3x3_pre_relu'
+shuffle_seed = 42
+
 size_n = 200
-CN = [25, 17, 1, 11, 15, 23, 40, 49, 53, 63, 71, 77, 80, 83, 85, 89, 91, 99, 100, 107, 111, 112, 121, 130, 131, 135, 141, 150, 157, 161, 172, 175, 185, 193, 198]
+CN = [25, 17, 1, 11, 15, 23, 40, 49, 53, 63, 71, 77, 80, 83, 85, 89, 91, 99, 100, 112, 113, 121, 130, 131, 135, 141, 150, 161, 172, 175, 185, 193, 198, 200, 201]
 
-random.shuffle(CN)
+R = random.Random(shuffle_seed)
+R.shuffle(CN)
 
-n_frames = 5
+n_frames = 3
 starting_training_steps = 2**10
 additional_training_steps = 2**9
 prior_threshold = 0.4
@@ -93,7 +97,6 @@ def render_set(
     imsave(f_image, img)
 
 
-channel = 'mixed4a_3x3_pre_relu'
 
 
 

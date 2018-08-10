@@ -8,12 +8,15 @@ import librosa
 import os, glob
 from tqdm import tqdm
 
-render_duration = 10.0
-render_size = 400
-extension = 'jpg'
-model_cutoff = 60
+render_duration = 200.0
+render_size = 1280
+extension = 'png'
+model_cutoff = 200
+#bitrate = 2400
+#bitrate = 6400
+bitrate = 12800
 
-beats_per_frame = 1
+beats_per_frame = 4
 sigma_weight = 1/2.5
 exageration_weight = 0.10
 exageration_sigma = 1/5.0
@@ -81,7 +84,7 @@ for k, w in tqdm(enumerate(WEIGHTS.T), total=len(T)):
 f_movie = "demo.mp4"
 
 F_IMG = os.path.join(save_dest, f"%08d.{extension}")
-cmd = f"avconv -y -r {fps} -i '{F_IMG}' -i {f_wav} -c:a aac -ab 112k -c:v libx264 -shortest -b:v 2400k {f_movie} "
+cmd = f"avconv -y -r {fps} -i '{F_IMG}' -i {f_wav} -c:a aac -ab 112k -c:v libx264 -shortest -b:v {bitrate}k {f_movie} "
 print(cmd)
 os.system(cmd)
 
