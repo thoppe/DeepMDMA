@@ -1,39 +1,54 @@
 import numpy as np
+import os
 import pylab as plt
+import librosa
+
+f_wav = "sound/secret_crates.wav"
+
+WAV,sr = librosa.load(f_wav,duration=8.2)
+total_seconds = librosa.get_duration(WAV, sr)
+
+f_beats = f_wav + '_beats.npy'
+f_onset = f_wav + '_onset.npy'
+beats = np.load(f_beats)
+onsets = np.load(f_onset)
+
+# If our duration is shorter than the time, truncate
+beats = beats[beats<=total_seconds]
+onsets = onsets[onsets<=total_seconds]
+N_frames = 15
 
 beats_per_frame = 4
-sigma_weight = 1/1.5
-N_frames = 5
-
-bpm = 80
+sigma_weight = 1/2.5
+exageration_weight = 0.10
+exageration_sigma = 1/5.0
 fps = 30
 
-bps = bpm/60.0
 
-seconds_per_mark =  beats_per_frame/bps
-total_seconds = seconds_per_mark*N_frames
+#seconds_per_mark =  beats_per_frame/bps
+#total_seconds = seconds_per_mark*N_frames
+N_frame = 4
 
 T = np.linspace(0, total_seconds, fps*total_seconds)
-
 WEIGHTS = np.zeros(shape=(N_frames, len(T)))
 
 for k in range(N_frames):
-    
-    s = seconds_per_mark
-    WEIGHTS[k] = np.exp(-(T-k*s)**2/(s*sigma_weight))
-    
-    if k==0:
-        WEIGHTS[k] += np.exp(-(T-N_frames*s)**2/(s*sigma_weight))
+    mu = beats[k]*beats_per_frame
+    WEIGHTS[k] = np.exp(-(T-mu)**2/sigma_weight)
 
 WEIGHTS /= WEIGHTS.sum(axis=0)
-
-WEIGHTS += 0.25*np.cos((np.pi/seconds_per_mark*beats_per_frame)*T.reshape(1,-1))**2
-
     
+for mu in onsets:
+    X = exageration_weight*np.exp(-(T-mu)**2/exageration_sigma**2)
+    
+    print ((X*WEIGHTS).sum())
+    WEIGHTS += WEIGHTS*X
+  
 for k,Y in enumerate(WEIGHTS):
     plt.plot(T,Y,label=k)
+plt.vlines(onsets, 0, .1, label='beats',color='k')
 
-plt.legend()
+#plt.legend()
 plt.show()
 exit()
 
