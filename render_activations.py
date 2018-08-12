@@ -1,7 +1,25 @@
+"""Render activations from the Inception model
+
+Usage:
+  render_activations.py [<channel>] [<k>] [--n_training=<n>] [--output_image_size=<n>] [--model_size=<n>]
+
+Options:
+  channel               Specify a channel (default, all channels)
+  k                     Specify a color in the channel (default, all valid)
+  --n_training=<n>      Number of training steps [default: 1024]
+  --output_image_size=<n>      Square size of image [default: 600]
+  --model_size=<n>      Size of the model CCN, don't change? [default: 200]
+  -h --help             Show this screen.
+"""
+
+from docopt import docopt
+dargs = docopt(__doc__)
+
+print (f"Start {dargs}")
+
 import numpy as np
 import os
 from tqdm import tqdm
-#from IPython import embed
 
 from scipy.misc import imsave
 
@@ -14,24 +32,6 @@ from lucid.optvis import objectives
 from lucid.optvis import render
 from lucid.misc.tfutil import create_session
 from lucid.optvis.param import cppn
-
-print ("Loading model")
-model = vision_models.InceptionV1()
-model.load_graphdef()
-
-size_n = 200
-
-training_steps = 2**10
-image_size = 600
-
-optimizer = tf.train.AdamOptimizer(0.005)
-transforms=[]
-
-save_image_dest = "results/images"
-save_model_dest = "results/models"
-os.system(f'mkdir -p {save_model_dest}')
-os.system(f'mkdir -p {save_image_dest}')
-
 
 def render_set(n, channel):
     
@@ -70,24 +70,42 @@ def render_set(n, channel):
     f_image = os.path.join(save_image_dest, channel + f"_{n}.png")
     imsave(f_image, img)
 
-    
 
-'''
-channel = "mixed4a_3x3_pre_relu"
-for batch_n in range(20):
-    render_set(1, channel, batch_n)
-'''
+print ("Loading model")
+model = vision_models.InceptionV1()
+model.load_graphdef()
 
-CHANNELS = [
-    "mixed4a_3x3_pre_relu",
-    "mixed4b_3x3_pre_relu",
-    "mixed4c_3x3_pre_relu",
-    "mixed4d_3x3_pre_relu",
-    "mixed4e_3x3_pre_relu",
-]
+size_n = int(dargs["--model_size"])
+training_steps = int(float(dargs["--n_training"]))
+image_size = int(dargs["--output_image_size"])
+
+optimizer = tf.train.AdamOptimizer(0.005)
+transforms=[]
+
+save_image_dest = "results/images"
+save_model_dest = "results/models"
+os.system(f'mkdir -p {save_model_dest}')
+os.system(f'mkdir -p {save_image_dest}')
+
+if not dargs["<channel>"]:
+    CHANNELS = [
+        "mixed4a_3x3_pre_relu",
+        "mixed4b_3x3_pre_relu",
+        "mixed4c_3x3_pre_relu",
+        "mixed4d_3x3_pre_relu",
+        "mixed4e_3x3_pre_relu",
+    ]
+else:
+    CHANNELS = [dargs["<channel>"],]
+
+if not dargs["<k>"]:
+    COLORSET = range(2**10)
+else:
+    COLORSET = [int(dargs["<k>"]),]
+
 
 for channel in CHANNELS:
-    for n in range(2**10):
+    for n in COLORSET:
 
         f_image = os.path.join(save_image_dest, channel + f"_{n}.jpg")
         if os.path.exists(f_image):
