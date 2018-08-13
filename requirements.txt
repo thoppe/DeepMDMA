@@ -1,0 +1,15 @@
+# Core numerical libs
+numpy
+scipy
+
+# Deep learning
+tensorflow
+lucid
+
+
+# Audio libs
+librosa
+
+# Helper libs
+tqdm
+docopt
