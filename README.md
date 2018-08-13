@@ -7,7 +7,7 @@ This is because the locally minimized regions of the CPPN are far from each othe
 The trick was to reuse the initial coordinates from the previous model to train the next.
 This provides continuity to train one image into another.
 
-[![Secret Crates 🎧💊🎧 Deep MDMA 🎧💊🎧](https://img.youtube.com/vi/qPi5UPAlwl8/0.jpg)](https://www.youtube.com/watch?v=qPi5UPAlwl8)
+[![Secret Crates 🎧💊🎧 Deep MDMA 🎧💊🎧](https://img.youtube.com/vi/qPi5UPAlwl8/mqdefault.jpg)](https://www.youtube.com/watch?v=qPi5UPAlwl8)
 
 Start with python 3.6, install [tensorflow](https://www.tensorflow.org/install/), and all the requirements
 
