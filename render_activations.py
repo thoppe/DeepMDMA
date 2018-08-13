@@ -1,21 +1,16 @@
 """Render activations from the Inception model
 
 Usage:
-  render_activations.py [<channel>] [<k>] [--n_training=<n>] [--output_image_size=<n>] [--model_size=<n>]
+  render_activations.py [<channel> <k>] [options]
 
 Options:
   channel               Specify a channel (default, all channels)
   k                     Specify a color in the channel (default, all valid)
   --n_training=<n>      Number of training steps [default: 1024]
-  --output_image_size=<n>      Square size of image [default: 600]
+  -o --output_image_size=<n>      Square size of image [default: 600]
   --model_size=<n>      Size of the model CCN, don't change? [default: 200]
   -h --help             Show this screen.
 """
-
-from docopt import docopt
-dargs = docopt(__doc__)
-
-print (f"Start {dargs}")
 
 import numpy as np
 import os
@@ -43,6 +38,8 @@ def render_set(n, channel):
 
     sess = create_session()
     t_size = tf.placeholder_with_default(size_n, [])
+    
+    f_model = os.path.join(save_model_dest, channel + f"_{n}.npy")
 
     T = render.make_vis_T(
         model, obj,
@@ -51,25 +48,37 @@ def render_set(n, channel):
         optimizer=optimizer, 
     )
     tf.global_variables_initializer().run()
+    train_vars = sess.graph.get_collection(
+        tf.GraphKeys.TRAINABLE_VARIABLES)
+
+    if not os.path.exists(f_model):
+
+
+        for i in tqdm(range(training_steps)):
+          _, loss = sess.run([T("vis_op"), T("loss"), ])
+
+        # Save trained variables
+        params = np.array(sess.run(train_vars), object)
+        save(params, f_model)
+    else:
+        params = load(f_model)
     
-    for i in tqdm(range(training_steps)):
-      _, loss = sess.run([T("vis_op"), T("loss"), ])
-
-    # Save trained variables
-    train_vars = sess.graph.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
-    params = np.array(sess.run(train_vars), object)
-
-    f_model = os.path.join(save_model_dest, channel + f"_{n}.npy")
-    save(params, f_model)
-  
     # Save final image
-    images = T("input").eval({t_size: image_size})
+    feed_dict = dict(zip(train_vars, params))
+    feed_dict[t_size] = image_size
+    images = T("input").eval(feed_dict)
     img = images[0]
     sess.close()
     
-    f_image = os.path.join(save_image_dest, channel + f"_{n}.png")
+    f_image = os.path.join(save_image_dest, channel + f"_{n}.jpg")
     imsave(f_image, img)
+    print(f"Saved to {f_image}")
 
+
+from docopt import docopt
+dargs = docopt(__doc__)
+
+print (f"Start {dargs}")
 
 print ("Loading model")
 model = vision_models.InceptionV1()

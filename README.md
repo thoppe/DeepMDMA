@@ -11,8 +11,13 @@ This provides continuity to train one image into another.
 
 To use, start with python 3, install tensorflow, and all the requirements
 
-   pip install -r requirements.txt
+    pip install -r requirements.txt
 
+Test a single single layer render with
 
+    python render_activations.py mixed4a_3x3_pre_relu 25
 
+This should produce an image like the one below.
+If you leave off the last two arguments, `render_activations.py` will try to build a model for every one of the 3x3 mixed layer/channels.
 
+![Mixed 4a layer viz](src/mixed4a_3x3_pre_relu_1.jpg)
