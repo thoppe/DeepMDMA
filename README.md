@@ -9,6 +9,10 @@ This provides continuity to train one image into another.
 
 [![Secret Crates 🎧💊🎧 Deep MDMA 🎧💊🎧](https://img.youtube.com/vi/qPi5UPAlwl8/0.jpg)](https://www.youtube.com/watch?v=qPi5UPAlwl8)
 
+To use, start with python 3, install tensorflow, and all the requirements
+
+   pip install -r requirements.txt
+
 
 
 
