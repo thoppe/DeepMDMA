@@ -3,7 +3,7 @@
 Deep MDMA is a combination of [Lucid](https://github.com/tensorflow/lucid) and [librosa](https://librosa.github.io/librosa/).
 The goal is to visualize the movement between layers of a neural network set to music.
 While Lucid makes beautiful images, independently training and interpolating between them leaves the animation disjointed.
-This is because the locally minimized regions of the CPPN are far from each other for each sample .
+This is because the locally minimized regions of the [CPPN](https://en.wikipedia.org/wiki/Compositional_pattern-producing_network) are far from each other for each sample.
 The trick was to reuse the initial coordinates from the previous model to train the next.
 This provides continuity to train one image into another.
 
