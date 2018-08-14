@@ -287,35 +287,3 @@ mixed4d:284 - mixed4d288
 
 ![mixed4d:284](../results/images/mixed4d_3x3_pre_relu_284.jpg) ![mixed4d:285](../results/images/mixed4d_3x3_pre_relu_285.jpg) ![mixed4d:286](../results/images/mixed4d_3x3_pre_relu_286.jpg) ![mixed4d:287](../results/images/mixed4d_3x3_pre_relu_287.jpg) 
 
-mixed4d:288 - mixed4d292
-
-![mixed4d:288](../results/images/mixed4d_3x3_pre_relu_288.jpg) ![mixed4d:289](../results/images/mixed4d_3x3_pre_relu_289.jpg) ![mixed4d:290](../results/images/mixed4d_3x3_pre_relu_290.jpg) ![mixed4d:291](../results/images/mixed4d_3x3_pre_relu_291.jpg) 
-
-mixed4d:292 - mixed4d296
-
-![mixed4d:292](../results/images/mixed4d_3x3_pre_relu_292.jpg) ![mixed4d:293](../results/images/mixed4d_3x3_pre_relu_293.jpg) ![mixed4d:294](../results/images/mixed4d_3x3_pre_relu_294.jpg) ![mixed4d:295](../results/images/mixed4d_3x3_pre_relu_295.jpg) 
-
-mixed4d:296 - mixed4d300
-
-![mixed4d:296](../results/images/mixed4d_3x3_pre_relu_296.jpg) ![mixed4d:297](../results/images/mixed4d_3x3_pre_relu_297.jpg) ![mixed4d:298](../results/images/mixed4d_3x3_pre_relu_298.jpg) ![mixed4d:299](../results/images/mixed4d_3x3_pre_relu_299.jpg) 
-
-mixed4d:300 - mixed4d304
-
-![mixed4d:300](../results/images/mixed4d_3x3_pre_relu_300.jpg) ![mixed4d:301](../results/images/mixed4d_3x3_pre_relu_301.jpg) ![mixed4d:302](../results/images/mixed4d_3x3_pre_relu_302.jpg) ![mixed4d:303](../results/images/mixed4d_3x3_pre_relu_303.jpg) 
-
-mixed4d:304 - mixed4d308
-
-![mixed4d:304](../results/images/mixed4d_3x3_pre_relu_304.jpg) ![mixed4d:305](../results/images/mixed4d_3x3_pre_relu_305.jpg) ![mixed4d:306](../results/images/mixed4d_3x3_pre_relu_306.jpg) ![mixed4d:307](../results/images/mixed4d_3x3_pre_relu_307.jpg) 
-
-mixed4d:308 - mixed4d312
-
-![mixed4d:308](../results/images/mixed4d_3x3_pre_relu_308.jpg) ![mixed4d:309](../results/images/mixed4d_3x3_pre_relu_309.jpg) ![mixed4d:310](../results/images/mixed4d_3x3_pre_relu_310.jpg) ![mixed4d:311](../results/images/mixed4d_3x3_pre_relu_311.jpg) 
-
-mixed4d:312 - mixed4d316
-
-![mixed4d:312](../results/images/mixed4d_3x3_pre_relu_312.jpg) ![mixed4d:313](../results/images/mixed4d_3x3_pre_relu_313.jpg) ![mixed4d:314](../results/images/mixed4d_3x3_pre_relu_314.jpg) ![mixed4d:315](../results/images/mixed4d_3x3_pre_relu_315.jpg) 
-
-mixed4d:316 - mixed4d320
-
-![mixed4d:316](../results/images/mixed4d_3x3_pre_relu_316.jpg) ![mixed4d:317](../results/images/mixed4d_3x3_pre_relu_317.jpg) ![mixed4d:318](../results/images/mixed4d_3x3_pre_relu_318.jpg) ![mixed4d:319](../results/images/mixed4d_3x3_pre_relu_319.jpg) 
-
