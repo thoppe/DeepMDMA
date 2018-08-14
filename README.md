@@ -26,8 +26,9 @@ If all goes well, use [smooth_transfer.py](smooth_transfer.py) to generate the i
 
 ## All mixed4(a,b,c,d,e) channels visualized
 
-+ [src/display_mixed4a.md](mixed4a)
-+ [src/display_mixed4b.md](mixed4b)
-+ [src/display_mixed4c.md](mixed4c)
-+ [src/display_mixed4d.md](mixed4d)
-+ [src/display_mixed4e.md](mixed4e)
++ [mixed4a](src/display_mixed4a.md)
++ [mixed4b](src/display_mixed4b.md)
++ [mixed4c](src/display_mixed4c.md)
++ [mixed4d](src/display_mixed4d.md)
++ [mixed4e](src/display_mixed4e.md)
+

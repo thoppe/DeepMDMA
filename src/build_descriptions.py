@@ -24,8 +24,7 @@ for channel,dfx in df.groupby("channel"):
     with open(f_save, 'w') as FOUT:
         FOUT.write(f"# {channel}\n")
 
-
-        for k in range(df.n.min(), df.n.max(), images_per_line):
+        for k in range(dfx.n.min(), dfx.n.max(), images_per_line):
             FOUT.write(f"{channel}:{k} - {channel}{k+images_per_line}\n\n")
 
             for n in range(k, k+images_per_line):
@@ -33,8 +32,3 @@ for channel,dfx in df.groupby("channel"):
                 img = f"![{channel}:{n}]({f_image}) "
                 FOUT.write(img)
             FOUT.write('\n\n')
-   
-    
-
-#print(df)
-
