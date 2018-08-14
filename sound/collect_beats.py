@@ -6,7 +6,7 @@ import librosa.display
 import os
 
 f_wav = "secret_crates.wav"
-y, sr = librosa.load(f_wav, duration=10**10)
+y, sr = librosa.load(f_wav, duration=10**11)
 
 f_beats = f_wav + '_beats.npy'
 f_onset = f_wav + '_onset.npy'
@@ -54,13 +54,13 @@ np.save(f_onset, onset_sf)
 
 ################################################################
 
-plt.figure(figsize=(6, 4))
+plt.figure(figsize=(8, 3))
 librosa.display.specshow(librosa.power_to_db(S, ref=np.max),
                          y_axis='mel', x_axis='time', sr=sr,
                          hop_length=hop_length, fmin=fmin, fmax=fmax)
 
-plt.vlines(beats, 0, 2**12, label='beats',color='w',lw=3,alpha=0.75)
-plt.vlines(onset_sf, 0, 2**11, label='beats',color='k')
+plt.vlines(beats, 0, 2**14, label='beats',color='w',lw=2,alpha=0.65)
+plt.vlines(onset_sf, 0, 2**11, label='beats',lw=4,color='w')
 
 plt.tight_layout()
 plt.show()
