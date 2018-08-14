@@ -32,3 +32,8 @@ If all goes well, use [smooth_transfer.py](smooth_transfer.py) to generate the i
 + [mixed4d](src/display_mixed4d.md)
 + [mixed4e](src/display_mixed4e.md)
 
+## Visualization of beats using librosa
+
+[beats](src/beat_display_example.jpg)
+
+Beats are denoted by the large white line, while the fat lines indicate the onsets (kicks or hi-hats). Images change between the beats, and pulse during the onsets.
