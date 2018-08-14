@@ -1,7 +1,7 @@
 import glob, os
 import pandas as pd
 
-images_per_line = 6
+images_per_line = 4
 F_JPG = glob.glob("../results/images/*.jpg")
 
 data = []
@@ -26,7 +26,7 @@ for channel,dfx in df.groupby("channel"):
 
 
         for k in range(df.n.min(), df.n.max(), images_per_line):
-            FOUT.write(f"*{channel}:{k} - {channel}{k+images_per_line}*\n")
+            FOUT.write(f"{channel}:{k} - {channel}{k+images_per_line}\n\n")
 
             for n in range(k, k+images_per_line):
                 f_image = f'../results/images/{channel}_3x3_pre_relu_{n}.jpg'

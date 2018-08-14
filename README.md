@@ -23,3 +23,11 @@ If you leave off the last two arguments, `render_activations.py` will try to bui
 ![Mixed 4a layer viz](src/mixed4a_3x3_pre_relu_1.jpg)
 
 If all goes well, use [smooth_transfer.py](smooth_transfer.py) to generate the intermediate models, [sound/collect_beats.py](sound/collect_beats.py) to measure the beat pattern for a target wav, and finally [matching_beats.py](matching_beats.py) to put it all together. 
+
+## All mixed4(a,b,c,d,e) channels visualized
+
++ [src/display_mixed4a.md](mixed4a)
++ [src/display_mixed4b.md](mixed4b)
++ [src/display_mixed4c.md](mixed4c)
++ [src/display_mixed4d.md](mixed4d)
++ [src/display_mixed4e.md](mixed4e)
