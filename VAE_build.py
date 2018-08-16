@@ -12,6 +12,7 @@ Options:
   --model_size=<n>      Size of the model CCN, don't change? [default: 200]
   -h --help             Show this screen.
 """
+# http://louistiao.me/posts/implementing-variational-autoencoders-in-keras-beyond-the-quickstart-tutorial/
 
 import numpy as np
 import os
@@ -28,8 +29,8 @@ from lucid.optvis.param import cppn
 
 def render_set(n, channel, m):
 
-    f_image = os.path.join(save_image_dest, channel + f"_{n}_{m}.jpg")
-    f_model = os.path.join(save_model_dest, channel + f"_{n}_{m}.npy")
+    f_image = os.path.join(save_image_dest, channel + f"_{n}_{m:04d}.jpg")
+    f_model = os.path.join(save_model_dest, channel + f"_{n}_{m:04d}.npy")
 
     if os.path.exists(f_image):
         return False
@@ -42,6 +43,8 @@ def render_set(n, channel, m):
 
     sess = create_session()
     t_size = tf.placeholder_with_default(size_n, [])
+
+    optimizer = tf.train.AdamOptimizer(0.005)
 
     T = render.make_vis_T(
         model, obj,
@@ -62,6 +65,8 @@ def render_set(n, channel, m):
         save(params, f_model)
     else:
         params = load(f_model)
+        
+    print (params)
     
     # Save final image
     feed_dict = dict(zip(train_vars, params))
@@ -86,9 +91,6 @@ model.load_graphdef()
 size_n = int(dargs["--model_size"])
 training_steps = int(float(dargs["--n_training"]))
 image_size = int(dargs["--output_image_size"])
-
-optimizer = tf.train.AdamOptimizer(0.005)
-transforms=[]
 
 save_image_dest = "results/VAE_base_images"
 save_model_dest = "results/VAE_base_models"
