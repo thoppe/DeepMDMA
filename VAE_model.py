@@ -58,7 +58,7 @@ def build_model(input_n, intermediate_n, latent_n):
 
     # instantiate encoder model
     encoder = Model(inputs, [z_mean, z_log_var, z], name='encoder')
-    print (encoder.summary())
+    #print (encoder.summary())
 
     # build decoder model
     latent_inputs = Input(shape=(latent_n,), name='z_sampling')
