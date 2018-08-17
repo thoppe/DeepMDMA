@@ -4,8 +4,6 @@ from tqdm import tqdm
 from lucid.misc.io import load
 from VAE_model import build_model
 
-#https://github.com/keras-team/keras/blob/master/examples/variational_autoencoder.py
-
 latent_n = 4
 cutoff = 128**10
 

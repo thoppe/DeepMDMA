@@ -6,6 +6,10 @@ from tensorflow.keras.losses import mse, binary_crossentropy
 from tensorflow.keras.utils import plot_model
 from tensorflow.keras import backend as K
 
+# See this site for more information
+#https://github.com/keras-team/keras/blob/master/examples/variational_autoencoder.py
+
+
 def sampling(args):
     """Reparameterization trick by sampling fr an isotropic unit Gaussian.
     # Arguments:
