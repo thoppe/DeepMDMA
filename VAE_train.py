@@ -4,7 +4,7 @@ from tqdm import tqdm
 from lucid.misc.io import load
 from VAE_model import build_model, pack, unpack
 
-latent_n = 4
+latent_n = 2
 cutoff = 128**10
 
 f_h5 = 'results/VAE_weights.h5'
