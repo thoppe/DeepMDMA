@@ -67,11 +67,13 @@ def build_model(input_n, intermediate_n, latent_n):
     decoder = Model(latent_inputs, outputs, name='decoder')
 
     # instantiate VAE model
-    outputs = decoder(encoder(inputs)[2])
-    VAE = Model(inputs, outputs, name='vae_mlp')
+    reconstructed_input = decoder(encoder(inputs)[2])
+    VAE = Model(inputs, reconstructed_input, name='vae_mlp')
 
     # Add loss functions and compile
-    reconstruction_loss = mse(inputs, outputs)
+    reconstruction_loss = mse(inputs, reconstructed_input)
+    #reconstruction_loss =binary_crossentropy(inputs, outputs)
+    
     reconstruction_loss *= input_n
     kl_loss = 1 + z_log_var - K.square(z_mean) - K.exp(z_log_var)
     kl_loss = K.sum(kl_loss, axis=-1)

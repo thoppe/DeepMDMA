@@ -4,14 +4,14 @@ from tqdm import tqdm
 from lucid.misc.io import load
 from VAE_model import build_model, pack, unpack
 
-latent_n = 2
+latent_n = 200
 cutoff = 128**10
 
 f_h5 = 'results/VAE_weights.h5'
 
 intermediate_n = 512
 batch_size = 128
-n_epochs = 1000
+n_epochs = 200
 
 test_train_split = 0.8
 
