@@ -5,9 +5,25 @@ from tensorflow.keras.datasets import mnist
 from tensorflow.keras.losses import mse, binary_crossentropy
 from tensorflow.keras.utils import plot_model
 from tensorflow.keras import backend as K
+import numpy as np
 
 # See this site for more information
 #https://github.com/keras-team/keras/blob/master/examples/variational_autoencoder.py
+
+
+
+def unpack(X):
+    return np.hstack([x.ravel() for x in X])
+
+def pack(X, shapes):
+    data, i = [], 0
+    for size in shapes:
+        n = np.prod(size)
+        
+        data.append(X[i:i+n].reshape(size))
+        i+=n
+    return np.array(data)
+
 
 
 def sampling(args):

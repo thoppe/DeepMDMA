@@ -2,7 +2,7 @@ import numpy as np
 import glob
 from tqdm import tqdm 
 from lucid.misc.io import load
-from VAE_model import build_model
+from VAE_model import build_model, pack, unpack
 
 latent_n = 4
 cutoff = 128**10
@@ -14,19 +14,6 @@ batch_size = 128
 n_epochs = 1000
 
 test_train_split = 0.8
-
-
-def unpack(X):
-    return np.hstack([x.ravel() for x in X])
-
-def pack(X, shapes):
-    data, i = [], 0
-    for size in shapes:
-        n = np.prod(size)
-        
-        data.append(X[i:i+n].reshape(size))
-        i+=n
-    return np.array(data)
 
 F_MODELS = glob.glob("results/VAE_base_models/*.npy")[:cutoff]
 
