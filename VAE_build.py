@@ -6,7 +6,7 @@ Usage:
 Options:
   channel               Specify a channel (default, all channels)
   k                     Specify a color in the channel (default, all valid)
-  --n_models=<n>        Number of models to sample [default: 256]
+  --n_models=<n>        Number of models to sample [default: 1024]
   --n_training=<n>      Number of training steps [default: 1024]
   -o --output_image_size=<n>      Square size of image [default: 600]
   --model_size=<n>      Size of the model CCN, don't change? [default: 200]

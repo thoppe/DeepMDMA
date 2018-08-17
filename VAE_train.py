@@ -2,9 +2,21 @@ import numpy as np
 import glob
 from tqdm import tqdm 
 from lucid.misc.io import load
+from VAE_model import build_model
 
 #https://github.com/keras-team/keras/blob/master/examples/variational_autoencoder.py
-latent_n = 2
+
+latent_n = 4
+cutoff = 128**10
+
+f_h5 = 'results/VAE_weights.h5'
+
+intermediate_n = 512
+batch_size = 128
+n_epochs = 1000
+
+test_train_split = 0.8
+
 
 def unpack(X):
     return np.hstack([x.ravel() for x in X])
@@ -18,7 +30,7 @@ def pack(X, shapes):
         i+=n
     return np.array(data)
 
-F_MODELS = glob.glob("results/VAE_base_models/*.npy")[:5]
+F_MODELS = glob.glob("results/VAE_base_models/*.npy")[:cutoff]
 
 # Load the save models
 raw_params = [load(f_model) for f_model in tqdm(F_MODELS)]
@@ -29,23 +41,25 @@ shapes = list(map(lambda x:x.shape, raw_params[0]))
 # Unpack them all
 X = np.array([unpack(p) for p in raw_params])
 
+input_n = X[0].size
 
 
-import seaborn as sns
-import pylab as plt
-for x in X:
-    sns.distplot(x)
-plt.show()
-print(X.shape)
-exit()
+#######################################################################
+VAE, encoder, decoder = build_model(
+    input_n, intermediate_n, latent_n)
+print(VAE.summary())
 
-f_model = 'results/VAE_base_models/mixed4a_1_0.npy'
-params = load(f_model)
+n_train = int(len(X)*test_train_split)
+X_train, X_test = X[:n_train], X[n_train:]
 
-u, shapes = unpack(params)
-params2 = pack(u,shapes)
+VAE.fit(
+    X_train,
+    epochs=n_epochs,
+    batch_size=batch_size,
+    validation_data=(X_test, None)
+)
 
-for x,y in zip(params,params2):
-    print ((x==y).all())
+f_h5 = 'results/VAE_weights.h5'
+VAE.save_weights(f_h5)
+print (f"Saved model to {f_h5}")
 
-    
