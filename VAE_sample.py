@@ -10,11 +10,11 @@ from lucid.misc.tfutil import create_session
 import tensorflow as tf
 from lucid.modelzoo import vision_models
 
-
+latent_n = 12
 cutoff = 2**20
 image_size = 400
 size_n = 200
-latent_n = 200
+
 
 F_MODELS = glob.glob("results/VAE_base_models/*.npy")[:cutoff]
 
@@ -24,14 +24,6 @@ shapes = list(map(lambda x:x.shape, raw_params[0]))
 X = np.array([unpack(p) for p in raw_params])
 
 
-#import pylab as plt
-#import seaborn as sns
-#print (X.mean(axis=1))
-#sns.distplot(X.mean(axis=1))
-#plt.figure()
-#sns.distplot(X.std(axis=1))
-#plt.show()
-#exit()
 
 class render_model():
     def __init__(self):
@@ -71,7 +63,7 @@ VAE = VAE.load_weights(f_h5)
 z_mean, z_std_log, z = encoder.predict(X, batch_size=128)
 XR = decoder.predict(z, batch_size=128)
 
-
+'''
 import pylab as plt
 import seaborn as sns
 sns.distplot(X.mean(axis=1), label="Org")
@@ -83,15 +75,15 @@ sns.distplot(X.std(axis=1), label="Org")
 sns.distplot(XR.std(axis=1), label="Reconstructed")
 plt.legend()
 plt.show()
-exit()
-
+#exit()
+'''
 
 
 print (z_mean)
 
 
 params0 = pack(X[0], shapes)
-params1 = pack(xp[0], shapes)
+params1 = pack(XR[0], shapes)
 #######################################################################
 #from IPython import embed; embed()
 
@@ -102,9 +94,20 @@ img1 = R(params1)
 #print(img0 - img1)
 
 import pylab as plt
+import seaborn as sns
+
 plt.imshow(img0)
 plt.figure()
 plt.imshow(img1)
+
+#import pylab as plt
+
+#print (X.mean(axis=1))
+plt.figure()
+sns.distplot(X.mean(axis=1))
+plt.figure()
+sns.distplot(X.std(axis=1))
+
 
 plt.show()
 exit()

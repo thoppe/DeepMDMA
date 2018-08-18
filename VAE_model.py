@@ -1,10 +1,10 @@
 import tensorflow as tf
-from tensorflow.keras.layers import Lambda, Input, Dense
-from tensorflow.keras.models import Model
-from tensorflow.keras.datasets import mnist
-from tensorflow.keras.losses import mse, binary_crossentropy
-from tensorflow.keras.utils import plot_model
-from tensorflow.keras import backend as K
+from keras.layers import Lambda, Input, Dense
+from keras.models import Model
+from keras.datasets import mnist
+from keras.losses import mse, binary_crossentropy
+from keras.utils import plot_model
+from keras import backend as K
 import numpy as np
 
 # See this site for more information
@@ -47,7 +47,8 @@ def build_model(input_n, intermediate_n, latent_n):
     # VAE model = encoder + decoder
     # build encoder model
     inputs = Input(shape=[input_n,], name='encoder_input')
-    Y = Dense(intermediate_n, activation='relu')(inputs)
+    #Y = Dense(intermediate_n, activation='relu')(inputs)
+    Y = Dense(intermediate_n, activation=None)(inputs)
 
     z_mean = Dense(latent_n, name='z_mean')(Y)
     z_log_var = Dense(latent_n, name='z_log_var')(Y)
@@ -63,7 +64,10 @@ def build_model(input_n, intermediate_n, latent_n):
     # build decoder model
     latent_inputs = Input(shape=(latent_n,), name='z_sampling')
     Zp = Dense(intermediate_n, activation='relu')(latent_inputs)
-    outputs = Dense(input_n, activation='sigmoid')(Zp)
+
+    #outputs = Dense(input_n, activation='sigmoid')(Zp)
+    outputs = Dense(input_n, activation=None)(Zp)
+    
     decoder = Model(latent_inputs, outputs, name='decoder')
 
     # instantiate VAE model
@@ -72,7 +76,7 @@ def build_model(input_n, intermediate_n, latent_n):
 
     # Add loss functions and compile
     reconstruction_loss = mse(inputs, reconstructed_input)
-    #reconstruction_loss =binary_crossentropy(inputs, outputs)
+    #reconstruction_loss =binary_crossentropy(inputs, reconstructed_input)
     
     reconstruction_loss *= input_n
     kl_loss = 1 + z_log_var - K.square(z_mean) - K.exp(z_log_var)
