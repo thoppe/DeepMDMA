@@ -2,10 +2,11 @@ import numpy as np
 import glob
 from tqdm import tqdm 
 from lucid.misc.io import load
-from VAE_model import build_model, pack, unpack
+from VAE_model_images import build_model
+import cv2
 
-latent_n = 2
-cutoff = 128**10
+latent_n = 4
+cutoff = 2**4
 
 f_h5 = 'results/VAE_weights.h5'
 
@@ -14,8 +15,17 @@ batch_size = 128
 n_epochs = 1000
 
 test_train_split = 0.8
+F_IMAGES = glob.glob("results/VAE_base_images/*")[:cutoff]
+IMG = [cv2.imread(f_img) for f_img in tqdm(F_IMAGES)]
 
-F_MODELS = glob.glob("results/VAE_base_models/*.npy")[:cutoff]
+IMG = np.array(IMG).astype(float)
+IMG /= 255
+
+img_x, img_y, img_c = IMG[0].shape
+
+M = build_model(img_x, None, None)
+print(IMG[0].shape)
+exit()
 
 # Load the save models
 raw_params = [load(f_model) for f_model in tqdm(F_MODELS)]
