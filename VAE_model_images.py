@@ -9,6 +9,7 @@ import numpy as np
 
 # See this site for more information
 # https://blog.keras.io/building-autoencoders-in-keras.html
+# https://docs.pymc.io/notebooks/convolutional_vae_keras_advi.html
 
 from keras.layers import Input, Dense, Conv2D, MaxPooling2D, UpSampling2D
 
