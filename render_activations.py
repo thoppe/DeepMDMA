@@ -16,7 +16,7 @@ import numpy as np
 import os
 from tqdm import tqdm
 
-from scipy.misc import imsave
+import imageio
 
 import tensorflow as tf
 from tensorflow.contrib import slim
@@ -71,7 +71,7 @@ def render_set(n, channel):
     sess.close()
     
     f_image = os.path.join(save_image_dest, channel + f"_{n}.jpg")
-    imsave(f_image, img)
+    imageio.imwrite(f_image, img)
     print(f"Saved to {f_image}")
 
 
@@ -117,8 +117,6 @@ for channel in CHANNELS:
     for n in COLORSET:
 
         f_image = os.path.join(save_image_dest, channel + f"_{n}.jpg")
-        if os.path.exists(f_image):
-            continue
         print("Starting", f_image)
         try:
             render_set(n, channel)
