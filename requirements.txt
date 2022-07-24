@@ -2,7 +2,7 @@
 numpy==1.19.4
 scipy==1.5.4
 imageio==2.9.0
-pillow==8.2.0
+pillow==8.3.2
 
 # Deep learning
 tensorflow==1.14.0
