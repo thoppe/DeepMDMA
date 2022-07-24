@@ -9,9 +9,14 @@ This provides continuity to train one image into another.
 
 [![Secret Crates 🎧💊🎧 Deep MDMA 🎧💊🎧](https://img.youtube.com/vi/qPi5UPAlwl8/mqdefault.jpg)](https://www.youtube.com/watch?v=qPi5UPAlwl8)
 
-Start with python 3.6.1, install [tensorflow](https://www.tensorflow.org/install/), and all the requirements
+Start with python 3.6.2, install [tensorflow 1](https://www.tensorflow.org/install/), and all the requirements
 
-    pip install -r requirements.txt
+      pip install -r requirements.txt
+
+If you want to use a GPU, do this
+
+      pip uninstall tensorflow
+      pip install tensorflow-gpu==1.14.0
 
 Test a single single layer render with
 
