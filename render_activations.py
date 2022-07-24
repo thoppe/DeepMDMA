@@ -28,59 +28,65 @@ from lucid.optvis import render
 from lucid.misc.tfutil import create_session
 from lucid.optvis.param import cppn
 
+
 def render_set(n, channel):
-    
-    print ("Starting", channel, n)
+
+    print("Starting", channel, n)
     obj = objectives.channel(channel, n)
 
     # Add this to "sharpen" the image... too much and it gets crazy
-    #obj += 0.001*objectives.total_variation()
+    # obj += 0.001*objectives.total_variation()
 
     sess = create_session()
     t_size = tf.placeholder_with_default(size_n, [])
-    
+
     f_model = os.path.join(save_model_dest, channel + f"_{n}.npy")
 
     T = render.make_vis_T(
-        model, obj,
+        model,
+        obj,
         param_f=lambda: cppn(t_size),
         transforms=[],
-        optimizer=optimizer, 
+        optimizer=optimizer,
     )
     tf.global_variables_initializer().run()
-    train_vars = sess.graph.get_collection(
-        tf.GraphKeys.TRAINABLE_VARIABLES)
+    train_vars = sess.graph.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
 
     if not os.path.exists(f_model):
 
-
         for i in tqdm(range(training_steps)):
-          _, loss = sess.run([T("vis_op"), T("loss"), ])
+            _, loss = sess.run(
+                [
+                    T("vis_op"),
+                    T("loss"),
+                ]
+            )
 
         # Save trained variables
         params = np.array(sess.run(train_vars), object)
         save(params, f_model)
     else:
         params = load(f_model)
-    
+
     # Save final image
     feed_dict = dict(zip(train_vars, params))
     feed_dict[t_size] = image_size
     images = T("input").eval(feed_dict)
     img = images[0]
     sess.close()
-    
+
     f_image = os.path.join(save_image_dest, channel + f"_{n}.jpg")
     imageio.imwrite(f_image, img)
     print(f"Saved to {f_image}")
 
 
 from docopt import docopt
+
 dargs = docopt(__doc__)
 
-print (f"Start {dargs}")
+print(f"Start {dargs}")
 
-print ("Loading model")
+print("Loading model")
 model = vision_models.InceptionV1()
 model.load_graphdef()
 
@@ -89,12 +95,12 @@ training_steps = int(float(dargs["--n_training"]))
 image_size = int(dargs["--output_image_size"])
 
 optimizer = tf.train.AdamOptimizer(0.005)
-transforms=[]
+transforms = []
 
 save_image_dest = "results/images"
 save_model_dest = "results/models"
-os.system(f'mkdir -p {save_model_dest}')
-os.system(f'mkdir -p {save_image_dest}')
+os.system(f"mkdir -p {save_model_dest}")
+os.system(f"mkdir -p {save_image_dest}")
 
 if not dargs["<channel>"]:
     CHANNELS = [
@@ -105,12 +111,16 @@ if not dargs["<channel>"]:
         "mixed4e_3x3_pre_relu",
     ]
 else:
-    CHANNELS = [dargs["<channel>"],]
+    CHANNELS = [
+        dargs["<channel>"],
+    ]
 
 if not dargs["<k>"]:
     COLORSET = range(2**10)
 else:
-    COLORSET = [int(dargs["<k>"]),]
+    COLORSET = [
+        int(dargs["<k>"]),
+    ]
 
 
 for channel in CHANNELS:
@@ -123,4 +133,3 @@ for channel in CHANNELS:
         except Exception as EX:
             print("EXCEPTION", channel, EX)
             break
-

@@ -1,7 +1,8 @@
 import numpy as np
 import os
 from tqdm import tqdm
-#from IPython import embed
+
+# from IPython import embed
 
 from scipy.misc import imsave
 import tensorflow as tf
@@ -16,15 +17,51 @@ from lucid.optvis.param import cppn
 import random
 
 
-print ("Loading model")
+print("Loading model")
 model = vision_models.InceptionV1()
 model.load_graphdef()
 
-channel = 'mixed4a_3x3_pre_relu'
+channel = "mixed4a_3x3_pre_relu"
 shuffle_seed = 42
 
 size_n = 200
-CN = [25, 17, 1, 11, 15, 23, 40, 49, 53, 63, 71, 77, 80, 83, 85, 89, 91, 99, 100, 112, 113, 121, 130, 131, 135, 141, 150, 161, 172, 175, 185, 193, 198, 200, 201]
+CN = [
+    25,
+    17,
+    1,
+    11,
+    15,
+    23,
+    40,
+    49,
+    53,
+    63,
+    71,
+    77,
+    80,
+    83,
+    85,
+    89,
+    91,
+    99,
+    100,
+    112,
+    113,
+    121,
+    130,
+    131,
+    135,
+    141,
+    150,
+    161,
+    172,
+    175,
+    185,
+    193,
+    198,
+    200,
+    201,
+]
 
 R = random.Random(shuffle_seed)
 R.shuffle(CN)
@@ -36,19 +73,21 @@ prior_threshold = 0.4
 
 
 optimizer = tf.train.AdamOptimizer(0.005)
-transforms=[]
+transforms = []
 
 save_image_dest = "results/smooth_images"
 save_model_dest = "results/smooth_models"
-os.system(f'mkdir -p {save_model_dest}')
-os.system(f'mkdir -p {save_image_dest}')
+os.system(f"mkdir -p {save_model_dest}")
+os.system(f"mkdir -p {save_image_dest}")
 
 
 def render_set(
-        channel, n_iter,
-        prefix, starting_pos=None,
-        force=False,
-        objective=None,
+    channel,
+    n_iter,
+    prefix,
+    starting_pos=None,
+    force=False,
+    objective=None,
 ):
 
     f_model = os.path.join(save_model_dest, channel + f"_{prefix}.npy")
@@ -56,11 +95,11 @@ def render_set(
     if os.path.exists(f_model) and not force:
         return True
 
-    print ("Starting", channel, prefix)
+    print("Starting", channel, prefix)
     obj = objective
 
     # Add this to "sharpen" the image... too much and it gets crazy
-    #obj += 0.001*objectives.total_variation()
+    # obj += 0.001*objectives.total_variation()
 
     sess = create_session()
     t_size = tf.placeholder_with_default(size_n, [])
@@ -68,90 +107,88 @@ def render_set(
     param_f = lambda: cppn(t_size)
 
     T = render.make_vis_T(
-        model, obj,
+        model,
+        obj,
         param_f=param_f,
         transforms=[],
-        optimizer=optimizer, 
+        optimizer=optimizer,
     )
     tf.global_variables_initializer().run()
 
     # Assign the starting weights
     if starting_pos is not None:
-        for v,x in zip(tf.trainable_variables(), starting_pos):
-            sess.run(tf.assign(v,x))
-    
+        for v, x in zip(tf.trainable_variables(), starting_pos):
+            sess.run(tf.assign(v, x))
+
     for i in tqdm(range(n_iter)):
-      _, loss = sess.run([T("vis_op"), T("loss"), ])
+        _, loss = sess.run(
+            [
+                T("vis_op"),
+                T("loss"),
+            ]
+        )
 
     # Save trained variables
     train_vars = sess.graph.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
     params = np.array(sess.run(train_vars), object)
 
     save(params, f_model)
-  
+
     # Save final image
     images = T("input").eval({t_size: 600})
     img = images[0]
     sess.close()
-    
+
     imsave(f_image, img)
-
-
-
-
 
 
 C = [objectives.channel(channel, cn) for cn in CN]
 
-#C0 = objectives.channel(channel, cn0)
-#C1 = objectives.channel(channel, cn1)
+# C0 = objectives.channel(channel, cn0)
+# C1 = objectives.channel(channel, cn1)
 
 # Render the fixed points
 
 for kn, obj in enumerate(C):
-    render_set(channel, starting_training_steps,
-               f'A{kn}', objective=obj)
+    render_set(channel, starting_training_steps, f"A{kn}", objective=obj)
 
-#render_set(channel, starting_training_steps, 'A0', objective=C0)
-#render_set(channel, starting_training_steps, 'A1', objective=C1)
+# render_set(channel, starting_training_steps, 'A0', objective=C0)
+# render_set(channel, starting_training_steps, 'A1', objective=C1)
 
 MODELS = [
-    load(os.path.join(save_model_dest, channel + f"_A{kn}.npy"))
-    for kn in range(len(C))
+    load(os.path.join(save_model_dest, channel + f"_A{kn}.npy")) for kn in range(len(C))
 ]
 
 
-#f_M0 = os.path.join(save_model_dest, channel + f"_A0.npy")
-#f_M1 = os.path.join(save_model_dest, channel + f"_A1.npy")
-#assert(os.path.exists(f_M0))
-#assert(os.path.exists(f_M1))
-#M0 = load(f_M0)
-#M1 = load(f_M1)
+# f_M0 = os.path.join(save_model_dest, channel + f"_A0.npy")
+# f_M1 = os.path.join(save_model_dest, channel + f"_A1.npy")
+# assert(os.path.exists(f_M0))
+# assert(os.path.exists(f_M1))
+# M0 = load(f_M0)
+# M1 = load(f_M1)
 
 
 model_n = 0
-for i in range(len(C)-1):
+for i in range(len(C) - 1):
     for p in np.linspace(0, 1, n_frames):
         print(f"Starting {i}, {p}")
 
         M0 = MODELS[i]
-        M1 = MODELS[i+1]
+        M1 = MODELS[i + 1]
 
         obj0 = C[i]
-        obj1 = C[i+1]
+        obj1 = C[i + 1]
 
-        pos = p*M1 + (1-p)*M0
-        obj = p*obj0 + (1-p)*obj1
+        pos = p * M1 + (1 - p) * M0
+        obj = p * obj0 + (1 - p) * obj1
 
         label = f"{model_n:08d}"
         prior_label = f"{model_n-1:08d}"
 
-        if model_n>0:
-            f_MX = os.path.join(save_model_dest, channel +
-                                f"_{prior_label}.npy")
+        if model_n > 0:
+            f_MX = os.path.join(save_model_dest, channel + f"_{prior_label}.npy")
             MX = load(f_MX)
-            pos = (pos + prior_threshold*MX) / (1+prior_threshold)
-
+            pos = (pos + prior_threshold * MX) / (1 + prior_threshold)
 
         render_set(
             channel,
@@ -161,11 +198,11 @@ for i in range(len(C)-1):
             force=True,
             objective=obj,
         )
-        
-        model_n += 1
-        
 
-'''
+        model_n += 1
+
+
+"""
 for k,
     print ("Starting", k,p)
     pos = p*M1 + (1-p)*M0
@@ -190,4 +227,4 @@ for k,
         force=True,
         objective=obj,
     )
-'''
+"""
